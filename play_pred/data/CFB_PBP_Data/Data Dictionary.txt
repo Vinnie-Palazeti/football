@@ -1,0 +1,109 @@
+Shitty Data Dictionary
+
+Preface: This data is scraped from ESPN's API, which has no official documentation and can in some cases be incorrect. 
+Every ESPN data column hereafter is a best guess, whereas the SPORTSDATASTUFF data column sets are mostly used to ensure good data and are based on known logic.
+Almost every statistic is respective to the offense or special teams - if a defense scored a touchdown off of an interception or fumble, the TD column should still show FALSE. This PBP data collection was created with fantasy in mind.
+
+COL		Source			Description
+gameid		ESPN			ESPN's identification number for the game.
+provider	ESPN			The odds provider that has the most complete set of odds for the game. If provider A is missing a spread and provider B has a spread for the same game, then provider B is shown here.
+o/u		ESPN			The respective over/under line for the game, respective to the provider column.
+hometeam	ESPN			The home team for the game.
+home money	ESPN			The moneyline (american) odds for the game's home team, respective to the provider.
+home spread	ESPN			The spread line for the game's home team, respective to the provider.
+awayteam	ESPN			The away team for the game.
+away money	ESPN			The moneyline (american) odds for the game's away team, respective to the provider.
+away spread	ESPN			The spread line for the game's away team, respective to the provider.
+playid		ESPN			ESPN's identification number for the play.
+activeid	ESPN			The id of the team that is on offense for the play. This is not 100% accurate, use the activeteam column instead when trying to aggregate statistics as it is slightly more accurate.
+activeteam	ESPN			The name of the team that is on offense for the play, might be inaccurate for kickoffs and punts.
+nonactiveteam	ESPN			The name of the team that is on defense for the play, might be inaccurate for kickoffs and punts.
+drive #		ESPN			A number which indicates how many offensive drives the activeteam has had up to and including the current drive.
+playtype	ESPN			A code number for what type of play ESPN thinks occured, see details below. This is hit or miss as ESPN seems inconsistent at best, if you need to aggregate data you are probably better off using logic against the qb, receiver, runner, kicker, kickreturner, and placekicker columns.
+quarter		ESPN			The quarter of the game in which the play occurred.
+sec		ESPN			The number of remaining seconds in the current quarter when the play began.
+homescore	ESPN			The total score of the home team before the play began.
+awayscore	ESPN			The total score of the away team before the play began.
+down		ESPN			The down number for the play.
+distance	ESPN			The distance needed for the activeteam to get a 1st down (or a touchdown).
+yardstoendzone	ESPN			The total number of yards that the activeteam needs to drive to get a touchdown, respective to the field position of the active team before the play began.
+zone		SPORTSDATASTUFF		A color code based on how close the activeteam is to the opponent's endzone before the play began, see below for details.
+qb		SPORTSDATASTUFF		The name of the quarterback for the passing play. Empty cell or value if the play had no pass attempt. Could be filled value if play also incorporated a 2 point conversion attempt.
+pass yds	SPORTSDATASTUFF		The number of yards gained or lost by the passing play. Empty cell or value if the play had no pass attempt.
+receiver	SPORTSDATASTUFF		The name of the receiver for the passing play. Empty cell or value if the play had no pass attempt. Could be filled value if play also incorporated a 2 point conversion attempt.
+recyds		SPORTSDATASTUFF		The number of yards gained or lost by the passing play. Empty cell or value if the play had no pass attempt.
+runner		SPORTSDATASTUFF		The name of the rushing player for the running play. Empty cell or value if the play had no run attempt or lateral pass. Could be filled value if play also incorporated a 2 point conversion attempt or a fumble recovered by the offense.
+runyds		SPORTSDATASTUFF		The number of yards gained or lost by the running play. Empty cell or value if the play had no run attempt.
+kicker		SPORTSDATASTUFF		The name of the kicker for a kickoff or punt attempt, if one occurred in the play.
+kickyds		SPORTSDATASTUFF		The number of yards a kickoff or punt was kicked for, not including the return.
+kickreturner 	SPORTSDATASTUFF		The name of the kick returning player, if one occurred in the play.
+kickretyds	SPORTSDATASTUFF		The number of yards a kickoff or punt was returned for.
+placekicker	SPORTSDATASTUFF		The name of the place kicker who attempted a field goal.
+pkyds		SPORTSDATASTUFF		The distance at which the field goal for the play was attempted by the placekicker.
+pkresult	SPORTSDATASTUFF		The result of the field goal attempt, if there was one. Values: GOOD, MISSED, and BLOCKED.
+playyds		ESPN			ESPN's recorded value for number of yards the ball moved in the play. Very inaccurate.
+penalty		SPORTSDATASTUFF		A flag which denotes whether a penalty occurred on the play (TRUE) or did not occur on the play (FALSE).
+int		SPORTSDATASTUFF		A flag which denotes whether an interception occurred on the play (TRUE) or did not occur on the play (FALSE).
+fumble		SPORTSDATASTUFF		A flag which denotes whether a fumble was made by the offense on the play (TRUE) or did not occur on the play (FALSE).
+td		SPORTSDATASTUFF		A flag which denotes whether a touchdown occurred on the play (TRUE) or did not occur on the play (FALSE).
+xp result	SPORTSDATASTUFF		The result of the extra point attempt after a touchdown (if there was one). Values: BLOCKED, GOOD, MISSED, NO POST TD ATTEMPT.
+two pt result	SPORTSDATASTUFF		The result of the two-point conversion attempt after a touchdown (if there was one). Values: FAILED, GOOD, NO POST TD ATTEMPT.
+playstring	ESPN			ESPN's recorded text of the play, detailing what happened in the play.
+play str len	SPORTSDATASTUFF		A count of the number of characters in the playstring text. Large numbers generally mean the play was more complicated or had an abnormal amount of things happen (penalty, fumble, interception, etc.).
+complexity	SPORTSDATASTUFF		A numeric value which attempts to estimate how complex the playstring is. A higher value should indicate a more complex play (fumble, interception, penalty, etc.). This number is primarily used for data quality assurance and serves to notify SPORTSDATASTUFF that the parsing of the playstring has a higher chance of being inaccurate.
+max len		SPORTSDATASTUFF		A numeric value which is calculated as the maximum number of characters in any of the player name columns: qb, receiver, runner, kicker, kickreturner, or placekicker. This will be inaccurate if any player names were fixed due to error. This column's value will be very high when there was an error in at least one of the player name columns.
+max spaces	SPORTSDATASTUFF		A numeric value which is calculated as the maxiumum number of spaces (" ") in any of the player name columns: qb, receiver, runner, kicker, kickreturner, or placekicker. This will be inaccurate if any player names were fixed due to error. This column's value will be very high when there was an error in at least one of the player name columns.
+
+playtype dictionary:
+
+play_type_dict = {
+    '2': 'End of 1st or 3rd Quarter',
+    '3': 'Pass - Incomplete',
+    '4': 'Pass - Complete',
+    '5': 'Run',
+    '6': 'Pass - Intercepted',
+    '7': 'Sack',
+    '8': 'Penalty - No Play',
+    '9': 'Fumble - No Turnover',
+    '12': 'Kickoff - Return Attempted',
+    '17': 'Punt - Blocked', 
+    '18': 'FG - Blocked', 
+    '20': 'Safety',
+    '21': 'Timeout',
+    '24': 'Pass - Complete', 
+    '26': 'Pass - Intercepted',
+    '29': 'Fumble - Turnover', 
+    '32': 'Kickoff - Return for TD', 
+    '34': 'Punt - Return for TD', 
+    '36': 'Interception - TD', 
+    '37': 'Punt - Blocked Return TD', 
+    '38': 'FG - Blocked Return TD',
+    '39': 'Fumble - Return for TD',
+    '40': 'FG - Returned', 
+    '41': 'FG - Return for TD', 
+    '51': 'Fumble No Turnover - Passed',
+    '52': 'Punt', 
+    '53': 'Kickoff', 
+    '56': '2PT Conversion - Good',
+    '57': 'Defensive PAT', 
+    '59': 'FG - Good', 
+    '60': 'FG - Missed', 
+    '61': 'XP - Good',
+    '62': 'XP - Missed',
+    '63': 'Pass - Intercepted', 
+    '65': 'End of 1st Half', 
+    '66': 'End of Game', 
+    '67': 'Pass - TD', 
+    '68': 'Run - TD', 
+    '70': 'Coin Toss'
+}
+
+zone logic:
+
+yardsToEndzone <= 5	:	zone = "DARK-RED"
+yardsToEndzone <= 10	:	zone = "ORANGE-RED"
+yardsToEndzone <= 20	:	zone = "RED"
+yardsToEndzone <= 40	:	zone = "ORANGE"
+yardsToEndzone <= 60	:	zone = "YELLOW"
+yardsToEndzone <= 80	:	zone = "GREEN"
+otherwise		:	zone = "BLUE"
